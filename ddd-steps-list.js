@@ -1,7 +1,3 @@
-/**
- * Copyright 2025 Landon-McSweeney
- * @license Apache-2.0, see LICENSE for full text.
- */
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
@@ -24,14 +20,14 @@ export class DddStepsList extends DDDSuper(I18NMixin(LitElement)) {
     this.t = this.t || {};
     this.t = {
       ...this.t,
-      title: "Title",
+      title: "Title", // Default title for localization
     };
     this.registerLocalization({
       context: this,
       localesPath:
         new URL("./locales/ddd-steps-list.ar.json", import.meta.url).href +
         "/../",
-      locales: ["ar", "es", "hi", "zh"],
+      locales: ["ar", "es", "hi", "zh"], // Localization support
     });
   }
 
@@ -45,31 +41,47 @@ export class DddStepsList extends DDDSuper(I18NMixin(LitElement)) {
 
   // Lit scoped styles
   static get styles() {
-    return [super.styles,
-    css`
-      :host {
-        display: block;
-        color: var(--ddd-theme-primary);
-        background-color: var(--ddd-theme-accent);
-        font-family: var(--ddd-font-navigation);
-      }
-      .wrapper {
-        margin: var(--ddd-spacing-2);
-        padding: var(--ddd-spacing-4);
-      }
-      h3 span {
-        font-size: var(--ddd-steps-list-label-font-size, var(--ddd-font-size-s));
-      }
-    `];
+    return [
+      super.styles,
+      css`
+        :host {
+          display: block;
+          color: var(--ddd-theme-primary);
+          background-color: var(--ddd-theme-accent);
+          font-family: var(--ddd-font-navigation);
+        }
+        .wrapper {
+          margin: var(--ddd-spacing-2);
+          padding: var(--ddd-spacing-4);
+        }
+        h3 span {
+          font-size: var(--ddd-steps-list-label-font-size, var(--ddd-font-size-s));
+        }
+        /* Styling for the steps container */
+        .steps-container {
+          display: flex;
+          flex-direction: column;
+        }
+        /* Responsive design for the list */
+        @media (max-width: 768px) {
+          .steps-container {
+            flex-direction: column;
+          }
+        }
+      `
+    ];
   }
 
   // Lit render the HTML
   render() {
     return html`
-<div class="wrapper">
-  <h3><span>${this.t.title}:</span> ${this.title}</h3>
-  <slot></slot>
-</div>`;
+      <div class="wrapper">
+        <h3><span>${this.t.title}:</span> ${this.title}</h3>
+        <div class="steps-container">
+          <slot></slot> <!-- Slots will contain the ddd-steps-list-item elements -->
+        </div>
+      </div>
+    `;
   }
 
   /**
