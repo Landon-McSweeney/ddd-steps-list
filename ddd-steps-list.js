@@ -1,6 +1,9 @@
+/**
+ * Copyright 2025 Landon-McSweeney
+ * @license Apache-2.0, see LICENSE for full text.
+ */
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
-import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
 
 /**
  * `ddd-steps-list`
@@ -8,7 +11,7 @@ import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
  * @demo index.html
  * @element ddd-steps-list
  */
-export class DddStepsList extends DDDSuper(I18NMixin(LitElement)) {
+export class DddStepsList extends DDDSuper(LitElement) {
 
   static get tag() {
     return "ddd-steps-list";
@@ -17,18 +20,6 @@ export class DddStepsList extends DDDSuper(I18NMixin(LitElement)) {
   constructor() {
     super();
     this.title = "";
-    this.t = this.t || {};
-    this.t = {
-      ...this.t,
-      title: "Title", // Default title for localization
-    };
-    this.registerLocalization({
-      context: this,
-      localesPath:
-        new URL("./locales/ddd-steps-list.ar.json", import.meta.url).href +
-        "/../",
-      locales: ["ar", "es", "hi", "zh"], // Localization support
-    });
   }
 
   // Lit reactive properties
@@ -41,55 +32,47 @@ export class DddStepsList extends DDDSuper(I18NMixin(LitElement)) {
 
   // Lit scoped styles
   static get styles() {
-    return [
-      super.styles,
-      css`
-        :host {
-          display: block;
-          color: var(--ddd-theme-primary);
-          background-color: var(--ddd-theme-accent);
-          font-family: var(--ddd-font-navigation);
-        }
-        .wrapper {
-          margin: var(--ddd-spacing-2);
-          padding: var(--ddd-spacing-4);
-        }
-        h3 span {
-          font-size: var(--ddd-steps-list-label-font-size, var(--ddd-font-size-s));
-        }
-        /* Styling for the steps container */
-        .steps-container {
-          display: flex;
-          flex-direction: column;
-        }
-        /* Responsive design for the list */
-        @media (max-width: 768px) {
-          .steps-container {
-            flex-direction: column;
-          }
-        }
-      `
-    ];
+    return [super.styles,
+    css`
+      :host {
+        display: block;
+        color: var(--ddd-theme-primary);
+        background-color: var(--ddd-theme-accent);
+        font-family: var(--ddd-font-navigation);
+        padding: var(--ddd-spacing-4);
+        border-radius: var(--ddd-radius-lg);
+        border: var(--ddd-border-md);
+      }
+      .wrapper {
+        margin: var(--ddd-spacing-2);
+        padding: var(--ddd-spacing-4);
+      }
+      h3 {
+        margin: 0;
+        font-size: var(--ddd-font-size-m);
+      }
+      h3 span {
+        font-size: var(--ddd-steps-list-label-font-size, var(--ddd-font-size-s));
+        font-weight: bold;
+      }
+      ::slotted(ddd-steps-list-item) {
+        display: block;
+        padding: var(--ddd-spacing-2);
+        border-bottom: var(--ddd-border-sm) solid var(--ddd-theme-primary);
+      }
+      ::slotted(ddd-steps-list-item:last-child) {
+        border-bottom: none;
+      }
+    `];
   }
 
   // Lit render the HTML
   render() {
     return html`
       <div class="wrapper">
-        <h3><span>${this.t.title}:</span> ${this.title}</h3>
-        <div class="steps-container">
-          <slot></slot> <!-- Slots will contain the ddd-steps-list-item elements -->
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * haxProperties integration via file reference
-   */
-  static get haxProperties() {
-    return new URL(`./lib/${this.tag}.haxProperties.json`, import.meta.url)
-      .href;
+        <h3><span>Step List:</span> ${this.title}</h3>
+        <slot></slot>
+      </div>`;
   }
 }
 
