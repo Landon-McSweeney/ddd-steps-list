@@ -1,155 +1,124 @@
-/**
- * Copyright 2025 Landon-McSweeney
- * @license Apache-2.0, see LICENSE for full text.
- */
-import { LitElement, html, css } from "lit";
-import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
+import { DDD } from "@haxtheweb/d-d-d/d-d-d.js";
+import { html, css } from "lit";
 
-/**
- * `ddd-steps-list`
- * 
- * @demo index.html
- * @element ddd-steps-list
- */
-export class DddStepsList extends DDDSuper(LitElement) {
-
-  static get tag() {
-    return "ddd-steps-list";
+class DddStepsList extends DDD {
+  static get properties() {
+    return {
+      dddPrimary: { type: String, attribute: 'ddd-primary', reflect: true }
+    };
   }
 
   constructor() {
     super();
-    this.title = "";
+    this.dddPrimary = '#1e90ff';
   }
 
-  // Lit reactive properties
-  static get properties() {
-    return {
-      ...super.properties,
-      title: { type: String },
-    };
+  connectedCallback() {
+    super.connectedCallback();
+    this.render();
+    this.validateChildren();
+    this.applyNumbering();
+    this.applyColorToItems();
   }
 
-  firstUpdated() {
-    this._updateStepNumbers();
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has("title")) {
-      this._updateStepNumbers();
+  updated(changedProps) {
+    if (changedProps.has('dddPrimary')) {
+      this.style.setProperty('--ddd-primary-color', this.dddPrimary);
+      this.applyColorToItems();
     }
   }
 
-  _updateStepNumbers() {
-    const steps = this.querySelectorAll("ddd-steps-list-item");
-    steps.forEach((step, index) => {
-      step.stepNumber = index + 1;
+  validateChildren() {
+    Array.from(this.children).forEach(child => {
+      if (child.tagName.toLowerCase() !== 'ddd-steps-list-item') {
+        child.remove();
+      }
     });
   }
 
-  // Lit scoped styles
+  applyNumbering() {
+    const items = Array.from(this.children).filter(child =>
+      child.tagName.toLowerCase() === 'ddd-steps-list-item'
+    );
+    items.forEach((item, index) => {
+      item.setAttribute('step', index + 1);
+    });
+  }
+
+  applyColorToItems() {
+    const color = this.dddPrimary || '#1e90ff';
+    Array.from(this.children).forEach(child => {
+      if (child.tagName.toLowerCase() === 'ddd-steps-list-item') {
+        child.setAttribute('data-primary', color);
+      }
+    });
+  }
+
   static get styles() {
-    return [super.styles,
-    css`
-      :host {
-        display: block;
-        color: var(--ddd-theme-primary);
-        background-color: var(--ddd-theme-accent);
-        font-family: var(--ddd-font-navigation);
-        padding: var(--ddd-spacing-4);
-        border-radius: var(--ddd-radius-lg);
-        border: var(--ddd-border-md);
-      }
-      .wrapper {
-        margin: var(--ddd-spacing-2);
-        padding: var(--ddd-spacing-4);
-      }
-      h3 {
-        margin: 0;
-        font-size: var(--ddd-font-size-m);
-      }
-      h3 span {
-        font-size: var(--ddd-steps-list-label-font-size, var(--ddd-font-size-s));
-        font-weight: bold;
-      }
-      ::slotted(ddd-steps-list-item) {
-        display: block;
-        padding: var(--ddd-spacing-2);
-        border-bottom: var(--ddd-border-sm) solid var(--ddd-theme-primary);
-      }
-      ::slotted(ddd-steps-list-item:last-child) {
-        border-bottom: none;
-      }
-    `];
+    return [
+      super.styles,
+      css`
+        :host {
+          display: block;
+          padding: var(--ddd-spacing-md, 1rem);
+          background-color: var(--ddd-theme-background, #f8f8f8);
+          border: 2px dashed var(--ddd-primary-color, #1e90ff);
+          font-family: var(--ddd-font-primary, sans-serif);
+          border-radius: var(--ddd-border-radius-md, 12px);
+        }
+        ::slotted(ddd-steps-list-item:last-child) {
+          margin-bottom: 0;
+        }
+      `
+    ];
   }
 
-  // Lit render the HTML
-  render() {
-    return html`
-      <div class="wrapper">
-        <h3><span>Step List:</span> ${this.title}</h3>
-        <slot @slotchange="${this._updateStepNumbers}"></slot>
-      </div>`;
-  }
-}
-
-globalThis.customElements.define(DddStepsList.tag, DddStepsList);
-
-/**
- * `ddd-steps-list-item`
- * 
- * @demo index.html
- * @element ddd-steps-list-item
- */
-export class DddStepsListItem extends LitElement {
-
-  static get tag() {
-    return "ddd-steps-list-item";
-  }
-
-  constructor() {
-    super();
-    this.stepNumber = 0;
-    this.title = "";
-    this.description = "";
-  }
-
-  // Lit reactive properties
-  static get properties() {
+  static get haxProperties() {
     return {
-      stepNumber: { type: Number, reflect: true },
-      title: { type: String },
-      description: { type: String }
+      canScale: true,
+      canPosition: true,
+      canEditSource: true,
+      gizmo: {
+        title: "Steps List",
+        description: "A list container for steps",
+        icon: "icons:reorder",
+        color: "grey",
+        groups: ["List"],
+        handles: [
+          {
+            type: "inline",
+            title: "title"
+          }
+        ],
+        meta: {
+          author: "psu",
+        }
+      },
+      settings: {
+        configure: [
+          {
+            property: "dddPrimary",
+            title: "Primary Color",
+            inputMethod: "colorpicker"
+          }
+        ],
+        advanced: []
+      },
+      demoSchema: [
+        {
+          tag: "ddd-steps-list",
+          properties: {
+            dddPrimary: "#0052cc"
+          },
+          slot: "<ddd-steps-list-item title=\"Step One\"><p>Do something.</p></ddd-steps-list-item>"
+        }
+      ]
     };
   }
 
-  // Lit scoped styles
-  static get styles() {
-    return css`
-      :host {
-        display: block;
-        margin: var(--ddd-spacing-2);
-        padding: var(--ddd-spacing-3);
-        border: 1px solid var(--ddd-theme-primary);
-      }
-      .step {
-        font-size: var(--ddd-font-size-l);
-        font-weight: bold;
-      }
-      .description {
-        font-size: var(--ddd-font-size-m);
-        color: var(--ddd-theme-secondary);
-      }
-    `;
-  }
-
-  // Lit render the HTML
   render() {
-    return html`
-      <div class="step">Step ${this.stepNumber}: ${this.title}</div>
-      <div class="description">${this.description}</div>
-    `;
+    return html`<slot></slot>`;
   }
 }
 
-globalThis.customElements.define(DddStepsListItem.tag, DddStepsListItem);
+customElements.define('ddd-steps-list', DddStepsList);
